@@ -1,13 +1,8 @@
-# importing everything from tkinter
 from tkinter import *
-# importing ttk for styling widgets from tkinter
 from tkinter import ttk
-# importing filedialog from tkinter
 from tkinter import filedialog as fd
-# importing os module
 import os
-# importing the PDFMiner class from the miner file
-from miner import PDFMiner
+from Miner import PDFMiner
 
 
 # creating a class called PDFViewer
@@ -31,11 +26,9 @@ class PDFViewer:
         # gives title to the main window
         self.master.title('PDF Viewer')
         # gives dimensions to main window
-        self.master.geometry('580x520+440+180')
+        self.master.geometry('1480x960')
         # this disables the minimize/maximize button on the main window
         self.master.resizable(width=0, height=0)
-        # loads the icon and adds it to the main window
-        #.master.iconbitmap(self.master, 'pdf_file_icon.ico')
         # creating the menu
         self.menu = Menu(self.master)
         # adding it to the main window
@@ -48,13 +41,13 @@ class PDFViewer:
         self.filemenu.add_command(label="Open File", command=self.open_file)
         self.filemenu.add_command(label="Exit", command=self.master.destroy)
         # creating the top frame
-        self.top_frame = ttk.Frame(self.master, width=580, height=460)
+        self.top_frame = ttk.Frame(self.master, width=800, height=850)
         # placing the frame using inside main window using grid()
         self.top_frame.grid(row=0, column=0)
         # the frame will not propagate
         self.top_frame.grid_propagate(False)
         # creating the bottom frame
-        self.bottom_frame = ttk.Frame(self.master, width=580, height=50)
+        self.bottom_frame = ttk.Frame(self.master, width=800, height=110)
         # placing the frame using inside main window using grid()
         self.bottom_frame.grid(row=1, column=0)
         # the frame will not propagate
@@ -68,7 +61,7 @@ class PDFViewer:
         # adding the scrollbar
         self.scrollx.grid(row=1, column=0, sticky=(W, E))
         # creating the canvas for display the PDF pages
-        self.output = Canvas(self.top_frame, bg='#ECE8F3', width=560, height=435)
+        self.output = Canvas(self.top_frame, bg='#ECE8F3', width=780, height=820)
         # inserting both vertical and horizontal scrollbars to the canvas
         self.output.configure(yscrollcommand=self.scrolly.set, xscrollcommand=self.scrollx.set)
         # adding the canvas
@@ -92,7 +85,7 @@ class PDFViewer:
         # adding the button
         self.downbutton.grid(row=0, column=3, pady=8)
         # label for displaying page numbers
-        self.page_label = ttk.Label(self.bottom_frame, text='page')
+        self.page_label = ttk.Label(self.bottom_frame, text='pages')
         # adding the label
         self.page_label.grid(row=0, column=4, padx=5)
 
@@ -166,11 +159,3 @@ class PDFViewer:
                 self.current_page -= 1
                 # displaying the previous page
                 self.display_page()
-
-
-# creating the root winding using Tk() class
-root = Tk()
-# instantiating/creating object app for class PDFViewer
-app = PDFViewer(root)
-# calling the mainloop to run the app infinitely until user closes it
-root.mainloop()
