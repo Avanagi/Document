@@ -14,8 +14,8 @@ class PDFMiner:
         # getting the height and width of the first page
         self.width, self.height = self.first_page.rect.width, self.first_page.rect.height
         # initializing the zoom values of the page
-        zoomdictionary = {900: 1.0, 800: 1.1, 700: 1.1, 600: 1.2, 500: 1.3,
-                    400: 2.0, 300: 2.0, 200: 2.5, 100: 2.5, 50: 3.0, 10: 3.0}
+        zoomdictionary = {900: 0.6, 800: 0.8, 700: 0.91, 600: 1.05, 500: 1.05,
+                          400: 1.5, 300: 1.73, 200: 2.5, 100: 2.8, 50: 3.0, 10: 3.5}
         # getting the width value
         width = int(math.floor(self.width / 100.0) * 100)
         # zooming the page

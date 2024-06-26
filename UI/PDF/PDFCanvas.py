@@ -8,7 +8,7 @@ def create_canvas_with_scrollbars(frame):
     scrollx = Scrollbar(frame, orient=HORIZONTAL)
     scrollx.grid(row=1, column=0, sticky=(W, E))
 
-    output = Canvas(frame, bg='#ECE8F3', width=780, height=880)
+    output = Canvas(frame, bg='#ECE8F3', width=780, height=890)
     output.configure(yscrollcommand=scrolly.set, xscrollcommand=scrollx.set)
     output.grid(row=0, column=0, sticky=(N, S, E, W))
 
