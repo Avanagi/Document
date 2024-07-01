@@ -241,13 +241,3 @@ class PDFViewer:
         except Exception as e:
             print(f"Error saving rectangle area: {e}")
 
-    def is_inside_canvas(self, x1, y1, x2, y2):
-        screen_width = self.highlight_canvas.winfo_screenwidth()
-        screen_height = self.highlight_canvas.winfo_screenheight()
-
-        x1 = max(0, min(x1, screen_width))
-        y1 = max(0, min(y1, screen_height))
-        x2 = max(0, min(x2, screen_width))
-        y2 = max(0, min(y2, screen_height))
-        if x2 > x1 and y2 > y1:
-            return True
