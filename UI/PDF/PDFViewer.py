@@ -111,7 +111,7 @@ class PDFViewer:
             else:
                 self.text_display.insert(END, "Unlucky. Описание внутри файла НЕ совпадает с названием файла\n")
                 print("\n" + self.text)
-        if input_text == "Документация":
+        elif input_text == "Документация":
             folder_path = os.path.dirname(self.path)
             print(folder_path)
             if os.path.isdir(folder_path):
