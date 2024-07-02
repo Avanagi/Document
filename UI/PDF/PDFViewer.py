@@ -10,9 +10,39 @@ from PIL import Image, ImageGrab
 
 import os
 import re
+
+import numpy
+
 import pytesseract
 
 pytesseract.pytesseract.tesseract_cmd = r'..\\Tesseract\\tesseract.exe'
+
+
+def clean_and_join_lines(cleaned_text):
+    cleaned_line = [text.strip().lstrip(",‚'`").rstrip(",`':—") for text in cleaned_text]
+
+    result = []
+    i = 0
+    while i < len(cleaned_line):
+        current_text = cleaned_line[i]
+
+        if current_text.endswith('-') and i + 1 < len(cleaned_line):
+            next_text = cleaned_line[i + 1]
+            combined_text = current_text + next_text
+            result.append(combined_text)
+            i += 2
+
+        elif current_text.endswith('х') and i + 1 < len(cleaned_line):
+            next_text = cleaned_line[i + 1]
+            combined_text = current_text + " " + next_text
+            result.append(combined_text)
+            i += 2
+
+        else:
+            result.append(current_text)
+            i += 1
+
+    return result
 
 
 class PDFViewer:
@@ -103,33 +133,51 @@ class PDFViewer:
         input_text = self.text_entry.get()
         self.text_display.config(state=NORMAL)
         self.text_display.delete(1.0, END)
-        cleaned_text = self.text.strip().lstrip(",'").rstrip(",':")
+        all_text = numpy.array(self.text.split('\n'))
+        cleaned_text = all_text[all_text != '']
 
-        if input_text == "Головная":
-            if self.text.strip() in self.name:
-                self.text_display.insert(END, "All good. Описание внутри файла совпадает с названием файла\n")
+        if input_text.lower() == "головная":
+            if len(cleaned_text) > 1:
+                cleaned_line = cleaned_text[1] + ' '.join(
+                    [part if part.endswith('-') else f' {part}' for part in cleaned_text[2:]])
+                cleaned_text[0] = cleaned_text[0].replace('_', '').replace('@', '').replace(' ', '').replace('°', '')
+                test = cleaned_text[0] + " " + cleaned_line
+                print(test)
+                if re.search(re.escape(test), self.name, re.IGNORECASE):
+                    self.text_display.insert(END, "All good. Описание внутри файла совпадает с названием файла")
+                else:
+                    self.text_display.insert(END, "Unlucky. Описание внутри файла НЕ совпадает с названием файла")
             else:
-                self.text_display.insert(END, "Unlucky. Описание внутри файла НЕ совпадает с названием файла\n")
-                print("\n" + self.text)
-        elif input_text == "Документация":
+                cleaned_text[0] = cleaned_text[0].replace('_', '').replace('@', '').replace(' ', '').replace('°', '')
+                if re.search(re.escape(cleaned_text[0]), self.name, re.IGNORECASE):
+                    self.text_display.insert(END, "All good. Описание внутри файла совпадает с названием файла\n")
+                else:
+                    self.text_display.insert(END, "Unlucky. Описание внутри файла НЕ совпадает с названием файла\n")
+                self.text_display.insert(END, "Выделена одна строка")
+
+        elif input_text.lower() == "документация":
             folder_path = os.path.dirname(self.path)
             print(folder_path)
             if os.path.isdir(folder_path):
                 files = os.listdir(folder_path)
-                print(files)
-                print(cleaned_text)
-                found = False
-                for file in files:
-                    if re.search(re.escape(cleaned_text), file, re.IGNORECASE):
-                        found = True
-                        break
-                if found:
-                    self.text_display.insert(END, f"Файл с названием, содержащим '{cleaned_text}', найден в папке.\n")
-                else:
-                    self.text_display.insert(END, f"Файл с названием, содержащим '{cleaned_text}', не найден в папке.\n")
-            else:
-                self.text_display.insert(END, "Указанная папка не существует.\n")
 
+                not_found_texts = []
+                cleaned_line = clean_and_join_lines(cleaned_text)
+                for text in cleaned_line[1:]:
+                    test = cleaned_line[0] + " " + text
+                    test = test.replace(". ", ".")
+                    print(test)
+                    found = (any(re.search(re.escape(test), file, re.IGNORECASE) for file in files))
+                    if not found:
+                        not_found_texts.append(text)
+
+                if not_found_texts:
+                    not_found_str = ", ".join(not_found_texts)
+                    self.text_display.insert(END, f"Файла/Файлов, содержащих {not_found_str}, нет в папке.")
+                else:
+                    self.text_display.insert(END, "Все файлы есть в папке.")
+            else:
+                self.text_display.insert(END, "Указанная папка не существует.")
         else:
             self.text_display.insert(END, self.text)
 
@@ -146,7 +194,6 @@ class PDFViewer:
             img_height = self.output.image.height()
 
             if self.highlight_canvas:
-                # Update existing canvas
                 self.highlight_canvas.destroy()
 
             self.highlight_canvas = Canvas(self.master, width=canvas_width, height=canvas_height, bd=0,
@@ -240,4 +287,3 @@ class PDFViewer:
 
         except Exception as e:
             print(f"Error saving rectangle area: {e}")
-
